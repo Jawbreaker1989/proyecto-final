@@ -83,9 +83,14 @@ public class HandlingAccount {
      * @return Verdadero si se puede realizar la transferencia, falso si no.
      */
     public boolean transfer(Account source, Account target, int value) {
-        int residue = source.getResidue();
-        return source.transfer(target, value) != residue;
+        if (source.getResidue() >= value) { // Verificar si la cuenta origen tiene suficientes fondos
+            source.withdraw(value); // Retirar el monto de la cuenta origen
+            target.deposit(value); // Depositar el monto en la cuenta destino
+            return true; // Devolver true para indicar que la transferencia fue exitosa
+        }
+        return false; // Devolver false si la cuenta origen no tiene suficientes fondos
     }
+
 
     /**
      * Método que permite consignar intereses a una cuenta de ahorros.
@@ -107,7 +112,7 @@ public class HandlingAccount {
      * Método que calcula el promedio del saldo de las cuentas.
      * @return Promedio del saldo de las cuentas.
      */
-    public double calcAverage() {
+    public double averageAccount() {
         double sum = 0.0;
         for (Account account : accounts) {
             sum += account.getResidue();

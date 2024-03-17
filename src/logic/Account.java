@@ -12,9 +12,10 @@ public class Account implements ActionsAccount {
     protected LocalDate dateOpen; // Fecha de apertura de la cuenta
     protected int residue; // Saldo disponible en la cuenta
     private TypeAccount typeAccount; // Tipo de cuenta
-    private static int minResidue = 0; // Saldo mínimo permitido en la cuenta
+    private static int minResidue = 10000; // Saldo mínimo permitido en la cuenta
     private List<Transaction> transactions; // Lista de transacciones realizadas en la cuenta
     private int nextTransactionId; // Identificador para la próxima transacción
+
 
     /**
      * Constructor para inicializar una cuenta bancaria.
@@ -149,6 +150,7 @@ public class Account implements ActionsAccount {
         return residue;
     }
 
+
     /**
      * Retira una cantidad de la cuenta, garantizando que el nuevo saldo no sea inferior al saldo mínimo permitido.
      *
@@ -190,6 +192,9 @@ public class Account implements ActionsAccount {
 
     // Método privado para agregar una transacción a la lista de transacciones
     private void addTransaction(TypeTransaction type, int amount) {
+        if (transactions == null) {
+            transactions = new ArrayList<>();
+        }
         Transaction transaction = new Transaction(nextTransactionId++, LocalDate.now(), type, amount);
         transactions.add(transaction);
     }

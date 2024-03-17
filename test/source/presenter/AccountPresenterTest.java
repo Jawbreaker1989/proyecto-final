@@ -32,13 +32,13 @@ class AccountPresenterTest {
 
     @Test
     void willdraw() {
-        setup();
+        
 
     }
 
     @Test
     void transfer() {
-        setup();
+
 
 
     }
