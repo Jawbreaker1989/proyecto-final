@@ -161,9 +161,9 @@ public class Account implements ActionsAccount {
         if (residue - value >= minResidue) {
             residue -= value;
             addTransaction(TypeTransaction.WITHDRAW, -value);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
