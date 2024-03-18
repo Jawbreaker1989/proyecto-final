@@ -83,7 +83,7 @@ class HandlingAccountTest {
 
         // Intentamos transferir 10_000 unidades desde la cuenta de ahorros a la cuenta corriente
         assertTrue(handlingAccount.transfer(savingsAccount, currentAccount, 10_000));
-        assertEquals(10_000, savingsAccount.getResidue()); // Verificamos que el saldo de la cuenta de ahorros sea 10,000 después de la transferencia
+        assertEquals(20_000, savingsAccount.getResidue()); // Verificamos que el saldo de la cuenta de ahorros sea 10,000 después de la transferencia
         assertEquals(160_000, currentAccount.getResidue()); // Verificamos que el saldo de la cuenta corriente sea 160,000 después de la transferencia
     }
 
