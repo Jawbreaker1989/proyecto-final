@@ -112,7 +112,23 @@ class AccountPresenterTest {
         }
     }
 
+    @Test
+    void payRate() {
+        setup();
+        try {
+            // Verifica si se puede calcular correctamente el monto del interés pagado para una cuenta de ahorros existente
+            double interestPaid = accountPresenter.payRate("12312332");
+            assertTrue(interestPaid > 0); // El interés pagado debe ser positivo
+            assertEquals(0.05 * 2700000, interestPaid, 0.01); // Verifica si el monto del interés pagado es correcto
 
+            // Verifica si se maneja correctamente el intento de calcular el interés para una cuenta que no es de ahorros
+            assertThrows(HandlingErrors.class, () -> accountPresenter.payRate("4534546-5"));
+            // Verifica si se maneja correctamente el intento de calcular el interés para una cuenta inexistente
+            assertThrows(HandlingErrors.class, () -> accountPresenter.payRate("99999-99"));
+        } catch (HandlingErrors e) {
+            System.out.println(e.getMessage());
+        }
+    }
     @Test
     void getAccounts() {
         setup();
