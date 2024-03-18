@@ -126,11 +126,14 @@ public class AccountPresenter {
      * @return Verdadero si se pudo realizar el retiro, falso cuando no hay saldo suficiente.
      * @throws Exception Si la cuenta no existe.
      */
-    public boolean withdraw(String number, int value) throws Exception {
-        Account account = handlingAccount.findAccount(number);
-        if(account != null){
-            return handlingAccount.withdraw(account, value);
+    public boolean withdraw(String number, int value)throws Exception{
+
+        Account account = handlingAccount.findAccount( number );
+        if( account != null ){
+
+            return handlingAccount.withdraw( account, value );
         }
+
         throw new Exception("Cuenta Inexistente");
     }
 

@@ -3,16 +3,14 @@ package view;
 import errors.HandlingErrors;
 import presenter.AccountPresenter;
 
-import java.util.Arrays;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * La clase ViewAccounts es responsable de interactuar con el usuario y presentar las operaciones relacionadas con cuentas bancarias.
  */
 public class ViewAccounts {
     private final AccountPresenter presenter;
+    private static final Scanner scanner = new Scanner(System.in);
 
     /**
      * Constructor de la clase ViewAccounts que inicializa el presentador de cuentas.
@@ -21,56 +19,73 @@ public class ViewAccounts {
         this.presenter = new AccountPresenter();
     }
 
-    /**
-     * Método principal de la clase ViewAccounts que inicia la aplicación.
-     * @param args Argumentos de la línea de comandos (no se utilizan en este caso).
-     */
     public static void main(String[] args) {
-        new ViewAccounts().mainMenu();
+        ViewAccounts view = new ViewAccounts();
+        view.showMenu();
     }
 
-    /**
-     * Muestra el menú principal de la aplicación y realiza una operación basada en la entrada del usuario.
-     */
-    private void mainMenu() {
-        // Crear una cuenta bancaria utilizando la entrada del usuario
-        createAccountFromUserInput();
-    }
+    public void showMenu() {
+        boolean exit = false;
+        while (!exit) {
+            System.out.println("\nBienvenido al sistema de gestión de cuentas bancarias");
+            System.out.println("1. Crear cuenta");
+            System.out.println("2. Realizar transacciones");
+            System.out.println("3. Consultar una cuenta");
+            System.out.println("4. Consultar las transacciones de una cuenta");
+            System.out.println("5. Visualizar información de las cuentas");
+            System.out.println("6. Salir");
 
-    /**
-     * Crea una nueva cuenta bancaria utilizando la entrada del usuario.
-     */
-    private void createAccountFromUserInput() {
-        Scanner scanner = new Scanner(System.in);
+            System.out.print("Seleccione una opción: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume the newline character
 
-        // Solicitar al usuario que ingrese la fecha
-        System.out.println("Ingrese la fecha (formato yyyy/MM/dd):");
-        String date = scanner.nextLine();
-
-        // Expresión regular para validar el formato de la fecha (yyyy/MM/dd)
-        Pattern pattern = Pattern.compile("^\\d{4}\\/\\d{2}\\/\\d{2}$");
-
-        // Matcher para realizar la coincidencia con la expresión regular
-        Matcher matcher = pattern.matcher(date);
-
-        // Si el formato de fecha es válido, continuar con la creación de la cuenta
-        if (matcher.find()) {
-            try {
-                // Solicitar al usuario que ingrese el número de cuenta
-                System.out.println("Ingrese el número de cuenta:");
-                String accountNumber = scanner.nextLine();
-
-                // Intentar guardar una cuenta de ahorros con la fecha y el número de cuenta proporcionados
-                System.out.println(presenter.saveAccount(accountNumber, date, AccountPresenter.SAVINGS));
-            } catch (HandlingErrors e) {
-                // Capturar y mostrar cualquier error relacionado con la gestión de errores
-                System.out.println(e.getMessage());
+            switch (choice) {
+                case 1:
+                    createAccount();
+                    break;
+                case 2:
+                    performTransactions();
+                    break;
+                case 3:
+                    findAccount();
+                    break;
+                case 4:
+                    viewAccountTransactions();
+                    break;
+                case 5:
+                    viewAccountInformation();
+                    break;
+                case 6:
+                    exit = true;
+                    break;
+                default:
+                    System.out.println("Opción inválida. Por favor, seleccione una opción válida.");
             }
-        } else {
-            // Si el formato de fecha no es válido, mostrar un mensaje de error
-            System.out.println("Formato de fecha no válido.");
         }
-        
-        scanner.close();
+    }
+
+    private void createAccount() {
+        System.out.println("\nCreación de nueva cuenta:");
+        // Implementa la lógica para crear una cuenta aquí
+    }
+
+    private void performTransactions() {
+        System.out.println("\nRealización de transacciones:");
+        // Implementa la lógica para realizar transacciones aquí
+    }
+
+    private void findAccount() {
+        System.out.println("\nConsulta de cuenta:");
+        // Implementa la lógica para consultar una cuenta aquí
+    }
+
+    private void viewAccountTransactions() {
+        System.out.println("\nConsulta de transacciones de una cuenta:");
+        // Implementa la lógica para consultar las transacciones de una cuenta aquí
+    }
+
+    private void viewAccountInformation() {
+        System.out.println("\nVisualización de información de las cuentas:");
+        // Implementa la lógica para visualizar información de las cuentas aquí
     }
 }
