@@ -8,8 +8,8 @@ public class CurrentAccount extends Account {
     /**
      * Constructor para inicializar una cuenta corriente con un saldo específico.
      *
-     * @param number      Número de la cuenta
-     * @param residue     Saldo inicial de la cuenta
+     * @param number  Número de la cuenta
+     * @param residue Saldo inicial de la cuenta
      */
     public CurrentAccount(String number, int residue) {
         super(number, LocalDate.now(), residue, TypeAccount.CURRENT);
@@ -54,29 +54,8 @@ public class CurrentAccount extends Account {
         return true;
     }
 
-    /**
-     * Sobrescribe el método de transferencia para aplicar la lógica de exención de impuestos.
-     *
-     * @param account Cuenta destino
-     * @param value   Valor de la transferencia
-     * @return Nuevo saldo de la cuenta origen después de la transferencia
-     */
-    @Override
-    public int transfer(Account account, int value) {
-        // Verificar si la transferencia es superior a 999999
-        if (value > 999999) {
-            taxExempt = true; // La cuenta se vuelve exenta
-        }
-
-        // Realizar la transferencia
-        super.transfer(account, value);
-
-        // Si la transferencia fue exitosa, actualizar el estado de exención de impuestos
-        if (getResidue() <= 1000000 && value > 999999) {
-            taxExempt = true; // La cuenta se vuelve exenta
-        }
-
-        // Devolver el nuevo saldo de la cuenta origen
-        return getResidue();
-    }
 }
+
+
+
+
