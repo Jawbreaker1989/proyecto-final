@@ -13,22 +13,18 @@ public class SavingsAccount extends Account {
     /**
      * Constructor para inicializar una cuenta de ahorros.
      *
-     * @param number   Número de la cuenta
-     * @param dateOpen Fecha de apertura de la cuenta
+     * @param number  Número de la cuenta
+     * @param residue Saldo inicial de la cuenta
      */
-    public SavingsAccount(String number, LocalDate dateOpen) {
-        super(number, dateOpen, TypeAccount.SAVINGS);
+    public SavingsAccount(String number, int residue) {
+        super(number, LocalDate.now(), validateResidue(residue), TypeAccount.SAVINGS);
     }
 
-    /**
-     * Constructor para inicializar una cuenta de ahorros con un saldo específico.
-     *
-     * @param number   Número de la cuenta
-     * @param dateOpen Fecha de apertura de la cuenta
-     * @param residue  Saldo inicial de la cuenta
-     */
-    public SavingsAccount(String number, LocalDate dateOpen, int residue) {
-        super(number, dateOpen, residue, TypeAccount.SAVINGS);
+    private static int validateResidue(int residue) {
+        if (residue < MINIMUM_BALANCE) {
+            throw new IllegalArgumentException("El saldo inicial no puede ser inferior a $50,000");
+        }
+        return residue;
     }
 
     /**
@@ -60,7 +56,7 @@ public class SavingsAccount extends Account {
     }
 
     // Método privado para calcular y pagar la tasa de interés
-    public void payRate() {
+    protected void payRate() {
         double interest = getResidue() * INTEREST_RATE;
         setResidue((int) (getResidue() + interest));
     }

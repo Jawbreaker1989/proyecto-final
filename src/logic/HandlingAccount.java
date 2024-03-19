@@ -99,8 +99,7 @@ public class HandlingAccount {
      * @return El nuevo saldo de la cuenta después de abonar los intereses.
      */
     public int payRate(Account account) {
-        if (account instanceof SavingsAccount) {
-            SavingsAccount savingsAccount = (SavingsAccount) account;
+        if (account instanceof SavingsAccount savingsAccount) {
             int oldResidue = savingsAccount.getResidue();
             savingsAccount.payRate();
             return savingsAccount.getResidue() - oldResidue;
@@ -118,35 +117,6 @@ public class HandlingAccount {
             sum += account.getResidue();
         }
         return sum / accounts.size();
-    }
-
-    /**
-     * Método que busca las cuentas que tienen el saldo igual al saldo mínimo.
-     * @return Colección con las cuentas que cumplen la condición.
-     */
-    public ArrayList<Account> getAccountsResidueMin() {
-        ArrayList<Account> result = new ArrayList<>();
-        for (Account account : accounts) {
-            if (account.getResidue() == Account.getMinResidue()) {
-                result.add(account);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Método que retorna la cuenta con el mayor saldo.
-     * @return Cuenta que tiene el mayor saldo.
-     */
-    public Account getMaxResidue() {
-        int max = Account.getMinResidue();
-        Account result = accounts.get(0);
-        for (Account account : accounts) {
-            if (account.getResidue() > result.getResidue()) {
-                result = account;
-            }
-        }
-        return result;
     }
 
     /**

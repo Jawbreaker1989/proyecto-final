@@ -2,36 +2,18 @@ package logic;
 
 import java.time.LocalDate;
 
-/**
- * La clase CurrentAccount representa una cuenta corriente, que es un tipo de cuenta bancaria con algunas características específicas.
- * Las cuentas corrientes pueden estar exentas de impuestos y no tienen un límite de sobregiro.
- */
 public class CurrentAccount extends Account {
     private boolean taxExempt; // Indica si la cuenta está exenta de impuestos
-
-    /**
-     * Constructor para inicializar una cuenta corriente.
-     *
-     * @param number      Número de la cuenta
-     * @param dateOpen    Fecha de apertura de la cuenta
-     * @param taxExempt   Indica si la cuenta está exenta de impuestos
-     */
-    public CurrentAccount(String number, LocalDate dateOpen, boolean taxExempt) {
-        super(number, dateOpen, TypeAccount.CURRENT);
-        this.taxExempt = taxExempt;
-    }
 
     /**
      * Constructor para inicializar una cuenta corriente con un saldo específico.
      *
      * @param number      Número de la cuenta
-     * @param dateOpen    Fecha de apertura de la cuenta
      * @param residue     Saldo inicial de la cuenta
-     * @param taxExempt   Indica si la cuenta está exenta de impuestos
      */
-    public CurrentAccount(String number, LocalDate dateOpen, int residue, boolean taxExempt) {
-        super(number, dateOpen, residue, TypeAccount.CURRENT);
-        this.taxExempt = taxExempt;
+    public CurrentAccount(String number, int residue) {
+        super(number, LocalDate.now(), residue, TypeAccount.CURRENT);
+        this.taxExempt = residue <= 1000000;
     }
 
     /**
@@ -44,15 +26,6 @@ public class CurrentAccount extends Account {
     }
 
     /**
-     * Establece si la cuenta está exenta de impuestos.
-     *
-     * @param taxExempt true si la cuenta está exenta de impuestos, false de lo contrario
-     */
-    public void setTaxExempt(boolean taxExempt) {
-        this.taxExempt = taxExempt;
-    }
-
-    /**
      * Sobrescribe el método de retiro para aplicar impuestos si la cuenta no está exenta de impuestos.
      * No se aplica un límite de sobregiro para las cuentas corrientes.
      *
@@ -62,13 +35,48 @@ public class CurrentAccount extends Account {
     @Override
     public boolean withdraw(int value) {
         if (!taxExempt) {
-            // Aplicar impuestos si no está exento de impuestos
+            // Verificar si el saldo después del retiro sigue siendo menor o igual a 1000000
+            if (getResidue() - value <= 1000000) {
+                // Verificar si el retiro es superior a 999999
+                if (value > 999999) {
+                    taxExempt = true; // La cuenta se vuelve exenta
+                }
+            }
+        }
+
+        // Aplicar impuestos si no está exenta de impuestos
+        if (!taxExempt) {
             value += (value / 1000) * 4;
         }
 
-        // No es necesario verificar el límite de sobregiro para la cuenta corriente
-
+        // Actualizar el saldo
         setResidue(getResidue() - value);
         return true;
+    }
+
+    /**
+     * Sobrescribe el método de transferencia para aplicar la lógica de exención de impuestos.
+     *
+     * @param account Cuenta destino
+     * @param value   Valor de la transferencia
+     * @return Nuevo saldo de la cuenta origen después de la transferencia
+     */
+    @Override
+    public int transfer(Account account, int value) {
+        // Verificar si la transferencia es superior a 999999
+        if (value > 999999) {
+            taxExempt = true; // La cuenta se vuelve exenta
+        }
+
+        // Realizar la transferencia
+        super.transfer(account, value);
+
+        // Si la transferencia fue exitosa, actualizar el estado de exención de impuestos
+        if (getResidue() <= 1000000 && value > 999999) {
+            taxExempt = true; // La cuenta se vuelve exenta
+        }
+
+        // Devolver el nuevo saldo de la cuenta origen
+        return getResidue();
     }
 }

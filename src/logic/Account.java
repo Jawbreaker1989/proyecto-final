@@ -12,9 +12,9 @@ public class Account implements ActionsAccount {
     protected LocalDate dateOpen; // Fecha de apertura de la cuenta
     protected int residue; // Saldo disponible en la cuenta
     private TypeAccount typeAccount; // Tipo de cuenta
-    private static int minResidue = 10000; // Saldo mínimo permitido en la cuenta
-    private List<Transaction> transactions; // Lista de transacciones realizadas en la cuenta
-    private int nextTransactionId; // Identificador para la próxima transacción
+
+    protected List<Transaction> transactions; // Lista de transacciones realizadas en la cuenta
+    protected int nextTransactionId; // Identificador para la próxima transacción
 
 
     /**
@@ -24,13 +24,13 @@ public class Account implements ActionsAccount {
      * @param dateOpen    Fecha de apertura de la cuenta
      * @param typeAccount Tipo de cuenta
      */
-    public Account(String number, LocalDate dateOpen, TypeAccount typeAccount) {
+    public Account(String number, LocalDate dateOpen, int residue, TypeAccount typeAccount, List<Transaction> transactions, int nextTransactionId) {
         this.number = number;
         this.dateOpen = dateOpen;
+        this.residue = residue;
         this.typeAccount = typeAccount;
-        this.residue = minResidue;
-        this.transactions = new ArrayList<>();
-        this.nextTransactionId = 1;
+        this.transactions = transactions;
+        this.nextTransactionId = nextTransactionId;
     }
 
     /**
@@ -93,6 +93,10 @@ public class Account implements ActionsAccount {
         this.residue = residue;
     }
 
+    public int getNextTransactionId() {
+        return nextTransactionId;
+    }
+
     /**
      * Obtiene el saldo actual de la cuenta.
      *
@@ -100,24 +104,6 @@ public class Account implements ActionsAccount {
      */
     public int getResidue() {
         return residue;
-    }
-
-    /**
-     * Obtiene el saldo mínimo permitido en la cuenta.
-     *
-     * @return Saldo mínimo permitido en la cuenta
-     */
-    public static int getMinResidue() {
-        return minResidue;
-    }
-
-    /**
-     * Establece el saldo mínimo permitido en la cuenta.
-     *
-     * @param minResidue Nuevo saldo mínimo permitido en la cuenta
-     */
-    public static void setMinResidue(int minResidue) {
-        Account.minResidue = minResidue;
     }
 
     /**
@@ -158,7 +144,7 @@ public class Account implements ActionsAccount {
      * @return true si el retiro fue exitoso, false de lo contrario
      */
     public boolean withdraw(int value) {
-        if (residue - value >= minResidue) {
+        if (residue - value >= 0) {
             residue -= value;
             addTransaction(TypeTransaction.WITHDRAW, -value);
             return true;

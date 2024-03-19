@@ -14,10 +14,6 @@ import java.util.List;
  * Proporciona métodos para buscar, crear, depositar, retirar, transferir y obtener información sobre las cuentas.
  */
 public class AccountPresenter {
-    // Constantes para los tipos de cuenta
-    public static final int CURRENT = 0;
-    public static final int SAVINGS = 1;
-
     // Relación: La clase AccountPresenter utiliza una instancia de HandlingAccount para interactuar con las cuentas.
     private HandlingAccount handlingAccount;
 
@@ -31,61 +27,51 @@ public class AccountPresenter {
     /**
      * Método que busca una cuenta por su número.
      * @param number Número de cuenta a buscar.
-     * @return Arreglo de String con los datos de la cuenta (Número, Fecha de Apertura, Saldo, Tipo de Cuenta).
-     *         Si la cuenta no existe, retorna null.
+     * @return Matriz de String con la información de las cuentas (Número, Fecha de Apertura, Saldo, Tipo de Cuenta).
+     * @throws HandlingErrors Si la cuenta no existe.
      */
-    public String[] findAccount(String number){
+    public String[][] findAccount(String number) throws HandlingErrors {
         Account account = handlingAccount.findAccount(number);
         if(account != null){
-            int typeAccount = account.getTypeAccount() == TypeAccount.CURRENT ? 0 : 1;
-            String[] result = {account.getNumber(), account.getDateOpen().toString(), Integer.toString(account.getResidue()), Integer.toString(typeAccount)};
-            return result;
+            return getAccounts(); // Llama al método existente para obtener la información de todas las cuentas
+        } else {
+            throw new HandlingErrors("La cuenta no existe.");
         }
-        return null;
     }
 
     /**
-     * Método que permite crear una nueva cuenta con saldo inicial.
+     * Método que permite crear una nueva cuenta con saldo inicial y asegura que la fecha de apertura no sea posterior a la fecha actual.
      * @param number Número de cuenta.
      * @param dateOpen Fecha de apertura en formato "yyyy/MM/dd".
      * @param residue Saldo inicial de la cuenta.
-     * @param typeAccount Tipo de cuenta (0=Corriente, 1=Ahorro).
+     * @param typeAccount Tipo de cuenta (corriente o ahorro).
      * @return Verdadero si se pudo crear la cuenta con éxito, falso si no.
-     * @throws HandlingErrors Si la fecha de apertura no es válida.
+     * @throws HandlingErrors Si la fecha de apertura no es válida o si el saldo inicial es insuficiente para una cuenta de ahorros.
      */
-    public boolean saveAccount(String number, String dateOpen, int residue, int typeAccount ) throws HandlingErrors {
+    public boolean saveAccount(String number, String dateOpen, int residue, TypeAccount typeAccount) throws HandlingErrors {
         LocalDate dateAux = null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        try{
+        try {
             dateAux = LocalDate.parse(dateOpen, formatter);
-        }catch (DateTimeParseException e){
+        } catch (DateTimeParseException e) {
             throw new HandlingErrors("Fecha No Válida");
         }
-        TypeAccount tAccount = typeAccount == CURRENT ? TypeAccount.CURRENT : TypeAccount.SAVINGS;
-        Account account = new Account(number, dateAux, residue, tAccount);
+
+        if (typeAccount == TypeAccount.SAVINGS && residue < 50000) {
+            throw new HandlingErrors("El saldo inicial para una cuenta de ahorros debe ser al menos de $50,000");
+        }
+
+        Account account;
+        if (typeAccount == TypeAccount.CURRENT) {
+            account = new CurrentAccount(number, residue);
+        } else {
+            account = new SavingsAccount(number, residue);
+        }
+
+        account.setDateOpen(dateAux); // Asignar la fecha de apertura
         return handlingAccount.saveAccount(account);
     }
 
-    /**
-     * Método que permite crear una nueva cuenta sin saldo inicial.
-     * @param number Número de cuenta.
-     * @param dateOpen Fecha de apertura en formato "yyyy/MM/dd".
-     * @param typeAccount Tipo de cuenta (0=Corriente, 1=Ahorro).
-     * @return Verdadero si se pudo crear la cuenta con éxito, falso si no.
-     * @throws HandlingErrors Si la fecha de apertura no es válida.
-     */
-    public boolean saveAccount(String number, String dateOpen, int typeAccount ) throws HandlingErrors {
-        LocalDate dateAux = null;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        try{
-            dateAux = LocalDate.parse(dateOpen, formatter);
-        }catch (DateTimeParseException e){
-            throw new HandlingErrors("Fecha No Válida");
-        }
-        TypeAccount tAccount = typeAccount == CURRENT ? TypeAccount.CURRENT : TypeAccount.SAVINGS;
-        Account account = new Account(number, dateAux, tAccount);
-        return handlingAccount.saveAccount(account);
-    }
     /**
      * Método que elimina una cuenta por su número.
      * @param number Número de la cuenta a eliminar.
@@ -153,21 +139,6 @@ public class AccountPresenter {
         }
         throw new Exception("Revisar Cuenta origen o Destino");
     }
-    /**
-     * Método que abona los intereses a una cuenta de ahorros.
-     * @param number Número de la cuenta de ahorros.
-     * @return El nuevo saldo de la cuenta después de abonar los intereses.
-     * @throws HandlingErrors Si la cuenta no existe o si no es una cuenta de ahorros.
-     */
-    public double payRate(String number) throws HandlingErrors {
-        Account account = handlingAccount.findAccount(number);
-        if (account != null && account instanceof SavingsAccount savingsAccount) {
-            int oldResidue = savingsAccount.getResidue();
-            savingsAccount.payRate();
-            return savingsAccount.getResidue() - oldResidue;
-        }
-        throw new HandlingErrors("La cuenta no existe o no es una cuenta de ahorros.");
-    }
 
     /**
      * Método que retorna las cuentas en forma de matriz de Strings.
@@ -198,54 +169,6 @@ public class AccountPresenter {
             average += account.getResidue();
         }
         return average / accounts.size();
-    }
-
-    /**
-     * Método que retorna las cuentas que tienen como saldo el saldo mínimo.
-     * @return Matriz de String con la información de las cuentas que cumplen la condición.
-     */
-    public String[][] getAccountsResidueMin() {
-        ArrayList<Account> accounts = handlingAccount.getAccounts();
-        ArrayList<Account> accountsWithMinResidue = new ArrayList<>();
-
-        // Busca las cuentas con saldo mínimo
-        for (Account account : accounts) {
-            if (account.getResidue() == Account.getMinResidue()) {
-                accountsWithMinResidue.add(account);
-            }
-        }
-
-        String[][] result = new String[accountsWithMinResidue.size()][4];
-
-        int row = 0;
-        for (Account account : accountsWithMinResidue) {
-            result[row][0] = account.getNumber();
-            result[row][1] = account.getDateOpen().toString();
-            result[row][2] = Integer.toString(account.getResidue());
-            int typeAccount = account.getTypeAccount() == TypeAccount.CURRENT ? 0 : 1;
-            result[row++][3] = Integer.toString(typeAccount);
-        }
-
-        return result;
-    }
-
-
-    /**
-     * Método que retorna la cuenta con el máximo saldo.
-     * @return Arreglo de String con los datos de la cuenta (Número, Fecha de Apertura, Saldo, Tipo de Cuenta).
-     */
-    public String[] getMaxResidue(){
-        ArrayList<Account> accounts = handlingAccount.getAccounts();
-        int max = accounts.get(0).getResidue();
-        Account account = accounts.get(0);
-        for(int index = 1; index < accounts.size(); index++){
-            if(accounts.get(index).getResidue() > max){
-                account = accounts.get(index);
-            }
-        }
-        int typeAccount = account.getTypeAccount() == TypeAccount.CURRENT ? 0 : 1;
-        String[] result = {account.getNumber(), account.getDateOpen().toString(), Integer.toString(account.getResidue()), Integer.toString(typeAccount)};
-        return result;
     }
 
     /**
